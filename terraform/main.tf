@@ -9,8 +9,12 @@ data "aws_subnets" "default" {
   }
 }
 
+resource "random_id" "suffix" {
+  byte_length = 4
+}
+
 resource "aws_security_group" "sg" {
-  name   = "devops-sg"
+  name   = "devops-sg-${random_id.suffix.hex}"
   vpc_id = data.aws_vpc.default.id
 
   ingress {
