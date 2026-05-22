@@ -54,7 +54,8 @@ jobs:
       - name: Install Ansible
         run: |
           sudo apt update
-          sudo apt install -y ansible
+          sudo apt install -y jq
+          pip install "ansible==8.7.0"
 
       - name: Create SSH key
         run: |
@@ -64,7 +65,9 @@ jobs:
       - name: Create inventory
         run: |
           echo "[web]" > inventory.ini
-          echo "${{ needs.terraform.outputs.ip }} ansible_user=ec2-user ansible_ssh_private_key_file=key.pem" >> inventory.ini
+          for ip in $(echo "${{ needs.terraform.outputs.instance_ips }}" | tr ',' ' '); do
+            echo "$ip ansible_user=ec2-user ansible_ssh_private_key_file=key.pem ansible_python_interpreter=/usr/bin/python3 ansible_ssh_common_args='-o StrictHostKeyChecking=no'" >> inventory.ini
+          done
 
       - name: Run Ansible
         env:
