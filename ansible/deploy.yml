@@ -1,28 +1,18 @@
 - name: Setup EC2 with Docker
   hosts: web
   become: yes
-  gather_facts: no
+  gather_facts: yes
 
   tasks:
 
     - name: Update system
-      yum:
-        name: "*"
-        state: latest
+      raw: sudo yum update -y
 
     - name: Install Docker
-      yum:
-        name: docker
-        state: present
+      raw: sudo amazon-linux-extras install docker -y
 
-    - name: Start Docker service
-      service:
-        name: docker
-        state: started
-        enabled: yes
+    - name: Start Docker
+      raw: sudo systemctl start docker && sudo systemctl enable docker
 
     - name: Add ec2-user to docker group
-      user:
-        name: ec2-user
-        groups: docker
-        append: yes
+      raw: sudo usermod -aG docker ec2-user
